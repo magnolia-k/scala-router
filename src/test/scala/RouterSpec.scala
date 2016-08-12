@@ -59,4 +59,16 @@ class RouterSpec extends Specification {
       m must beNone
     }
   }
+
+  "capture test" >> {
+    "valid" >> {
+      val r = new Router()
+      r.add("""{foo:(?:.)}""", "valid_root") must not(throwA[java.lang.Exception])
+    }
+
+    "invalid" >> {
+      val r = new Router()
+      r.add("""/{foo:(.)}""", "invalid_root") must throwA[java.lang.Exception]
+    }
+  }
 }

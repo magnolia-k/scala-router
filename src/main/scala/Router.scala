@@ -14,8 +14,9 @@ object PathParser extends RegexParsers {
 
   def namedRegexCapture = "{" ~> """(?:\{[0-9,]+\}|[^{}]+)+""".r <~ "}" ^^ { s => 
     val e = s.split(":",2)
-    println(e(0), e.size)
     val re = if (e.size == 2) "(" + e(1) + ")" else """([^/]+)"""
+    if (e.size == 2 && isNormalCapture(e(1)))
+      throw new Exception("You can't include parens in your custom rule.")
     Capture(re, Some(e(0)))
   }
   def namedCapture = ":" ~> """[A-Za-z0-9_]+""".r ^^ { s => Capture("""([^/]+)""", Some(s)) }
@@ -30,6 +31,10 @@ object PathParser extends RegexParsers {
 
   private def quotemeta(str: String): String = {
     str.replaceAll("""([\.\\\+\*\?\[\^\]\$\(\)\/])""", """\\$1""")
+  }
+
+  private def isNormalCapture(c: String): Boolean = {
+    """\((?!\?:)""".r.findFirstIn( c ).nonEmpty
   }
 }
 
@@ -47,7 +52,6 @@ class Router() {
     captured match {
       case Left(e)  => throw new Exception(e.toString)
       case Right(e) => new Route(e, dest) +=: routes 
-//      case Right(e) => routes.append(new Route(e, dest))
     }
   }
 
@@ -63,10 +67,6 @@ class Router() {
           case Some(v) => {
             val result = scala.collection.mutable.Map[String, String]()
             route.keys.zipWithIndex.foreach( k => result += (k._1 -> v.group(k._2 + 1)))
-            println("===============================")
-            println(route.regexp)
-            println(path)
-            println("===============================")
             Some((route.dest, result.toMap))
           }
           case None    => innerMatchRoutes(rs.tail)
