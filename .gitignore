@@ -1,0 +1,7 @@
+# for scala
+target/
+*.class
+# for vim
+*.swp
+
+*.jar
