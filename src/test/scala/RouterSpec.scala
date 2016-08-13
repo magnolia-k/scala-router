@@ -47,10 +47,10 @@ class RouterSpec extends Specification {
     }
 
     "dispatch_download" >> { 
-      val m = router.matchRoutes("/download/file.txt")
+      val m = router.matchRoutes("/download/foo/bar/baz.zip")
       m must beSome { v:(String, Map[String, String]) =>
         v._1 === "dispatch_download"
-        v._2 must havePair( "*" -> "file.txt" )
+        v._2 must havePair( "*" -> "foo/bar/baz.zip" )
       }
     }
 

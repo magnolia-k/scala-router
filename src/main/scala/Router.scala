@@ -51,7 +51,7 @@ class Router() {
 
     captured match {
       case Left(e)  => throw new Exception(e.toString)
-      case Right(e) => new Route(e, dest) +=: routes 
+      case Right(e) => routes += new Route(e, dest)
     }
   }
 
